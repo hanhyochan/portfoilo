@@ -1,18 +1,22 @@
+$color_bg: #000000;
+$color_text: #ffffff;
+$font_family_base:
+  Pretendard,
+  'Noto Sans KR',
+  Inter,
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  sans-serif;
+
 * {
   box-sizing: border-box;
 }
 
 :root {
-  font-family:
-    Pretendard,
-    'Noto Sans KR',
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  color: #ffffff;
-  background: #000000;
+  font-family: $font_family_base;
+  color: $color_text;
+  background: $color_bg;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -28,4 +32,8 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
+}
+
+#root {
+  min-height: 100vh;
 }

@@ -1,121 +1,29 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.scss'
+import useFullPageNavigation from './hooks/useFullPageNavigation'
+import Page1, { PAGE1_STEP_COUNT } from './pages/page1/Page1'
+import Page2 from './pages/page2/Page2'
+import Page3 from './pages/page3/Page3'
+import Page4 from './pages/page4/Page4'
 
-const indexes = [
-  {
-    text: (
-      <>
-        퍼블하는 디자이너 <span className="text_index_soft">한효찬입니다.</span>
-      </>
-    ),
-    value: '퍼블하는 디자이너 한효찬입니다.',
-  },
-  {
-    text: '주 사용 툴',
-    value: '주 사용 툴',
-  },
-  {
-    text: '디자인 시스템',
-    value: '디자인 시스템',
-  },
-]
-
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
+const PAGE_COUNT = 4
 
 function App() {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const wheelLockRef = useRef(false)
-  const touchStartRef = useRef(null)
-
-  const moveIndex = useCallback((direction) => {
-    setActiveIndex((current) =>
-      clamp(current + direction, 0, indexes.length - 1),
-    )
-  }, [])
-
-  useEffect(() => {
-    const releaseWheelLock = () => {
-      window.setTimeout(() => {
-        wheelLockRef.current = false
-      }, 120)
-    }
-
-    const handleWheel = (event) => {
-      event.preventDefault()
-
-      if (wheelLockRef.current || Math.abs(event.deltaY) < 1) {
-        return
-      }
-
-      wheelLockRef.current = true
-      moveIndex(event.deltaY > 0 ? 1 : -1)
-      releaseWheelLock()
-    }
-
-    const handleKeyDown = (event) => {
-      if (['ArrowDown', 'PageDown', ' '].includes(event.key)) {
-        event.preventDefault()
-        moveIndex(1)
-      }
-
-      if (['ArrowUp', 'PageUp'].includes(event.key)) {
-        event.preventDefault()
-        moveIndex(-1)
-      }
-    }
-
-    const handleTouchStart = (event) => {
-      touchStartRef.current = event.touches[0].clientY
-    }
-
-    const handleTouchMove = (event) => {
-      if (touchStartRef.current === null) {
-        return
-      }
-
-      event.preventDefault()
-      const distance = touchStartRef.current - event.touches[0].clientY
-
-      if (Math.abs(distance) > 44 && !wheelLockRef.current) {
-        wheelLockRef.current = true
-        moveIndex(distance > 0 ? 1 : -1)
-        touchStartRef.current = event.touches[0].clientY
-        releaseWheelLock()
-      }
-    }
-
-    window.addEventListener('wheel', handleWheel, { passive: false })
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('touchstart', handleTouchStart, { passive: true })
-    window.addEventListener('touchmove', handleTouchMove, { passive: false })
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel)
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('touchstart', handleTouchStart)
-      window.removeEventListener('touchmove', handleTouchMove)
-    }
-  }, [moveIndex])
+  const { activeIndex, activePage, activeStep } = useFullPageNavigation({
+    page1StepCount: PAGE1_STEP_COUNT,
+    pageCount: PAGE_COUNT,
+  })
 
   return (
-    <main className="container_index" aria-label="포트폴리오 인덱스">
-      <ol className="wrapper_index" aria-label="섹션 인덱스">
-        {indexes.map((item, index) => {
-          const isActive = activeIndex === index
-          const number = String(index + 1).padStart(2, '0')
-
-          return (
-            <li
-              aria-current={isActive ? 'step' : undefined}
-              className={`wrapper_index_item ${isActive ? 'is-active' : ''}`}
-              key={item.value}
-            >
-              <span className="text_index_number">{number}.</span>
-              <span className="text_index_label">{item.text}</span>
-            </li>
-          )
-        })}
-      </ol>
+    <main
+      className="container_pages"
+      data-page={activePage + 1}
+      data-step={activeStep + 1}
+      style={{ transform: `translate3d(0, -${activePage * 100}vh, 0)` }}
+    >
+      <Page1 activeIndex={activeIndex} isActive={activePage === 0} />
+      <Page2 isActive={activePage === 1} />
+      <Page3 isActive={activePage === 2} />
+      <Page4 isActive={activePage === 3} />
     </main>
   )
 }

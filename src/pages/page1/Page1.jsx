@@ -7,26 +7,26 @@ const page1Sections = [
   {
     text: '퍼블하는 디자이너',
     softText: '한효찬입니다.',
-    value: '퍼블하는 디자이너 한효찬입니다.',
     Content: Page1Content1,
   },
   {
     text: '주 사용 툴',
-    value: '주 사용 툴',
     Content: Page1Content2,
   },
   {
     text: '디자인 시스템',
-    value: '디자인 시스템',
     Content: Page1Content3,
   },
 ]
 
-export const PAGE1_STEP_COUNT = 3
+const formatSectionNumber = (index) => String(index + 1).padStart(2, '0')
+
+export const PAGE1_STEP_COUNT = page1Sections.length
 
 function Page1({ activeIndex, isActive }) {
   const activeItem = page1Sections[activeIndex]
   const ActiveContent = activeItem.Content
+  const activeNumber = formatSectionNumber(activeIndex)
 
   return (
     <section
@@ -37,14 +37,14 @@ function Page1({ activeIndex, isActive }) {
       <ol className="wrapper_index" aria-label="섹션 인덱스">
         {page1Sections.map((item, index) => {
           const isCurrent = activeIndex === index
-          const number = String(index + 1).padStart(2, '0')
+          const number = formatSectionNumber(index)
 
           return (
             <li
               aria-current={isCurrent && isActive ? 'step' : undefined}
-              className={`wrapper_index_item ${isCurrent ? 'is-active' : ''}`}
+              className="item_index"
               id={`index-${number}`}
-              key={item.value}
+              key={item.text}
             >
               <span className="text_index_number">{number}.</span>
               <span className="text_index_label">
@@ -62,9 +62,9 @@ function Page1({ activeIndex, isActive }) {
       </ol>
 
       <section
-        aria-labelledby={`index-${String(activeIndex + 1).padStart(2, '0')}`}
+        aria-labelledby={`index-${activeNumber}`}
         aria-live="polite"
-        className="text_index_content"
+        className="box_index_content"
       >
         <ActiveContent />
       </section>

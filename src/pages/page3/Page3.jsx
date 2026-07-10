@@ -7,7 +7,7 @@ function Page3({ isActive }) {
       aria-label="3번째 페이지"
       className="container_page"
     >
-      <h2 className="text_page_title">3번째 페이지</h2>
+      <h2 className="title_page">3번째 페이지</h2>
     </section>
   )
 }

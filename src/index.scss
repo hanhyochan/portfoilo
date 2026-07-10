@@ -1,41 +1,5 @@
-$color_bg: #000000;
-$color_text: #ffffff;
-$font_family_base:
-  Pretendard,
-  'Noto Sans KR',
-  Inter,
-  -apple-system,
-  BlinkMacSystemFont,
-  'Segoe UI',
-  sans-serif;
-
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  font-family: $font_family_base;
-  color: $color_text;
-  background: $color_bg;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-html,
-body {
-  all: unset;
-  display: block;
-  width: 100%;
-  min-width: 320px;
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
-#root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
+@use './styles/foundation';
+@use './styles/reset';
+@use './styles/utilities';
+@use './App';
+@use './pages/page1/Page1';

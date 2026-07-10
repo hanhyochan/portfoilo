@@ -1,44 +1,30 @@
-**Source Visual Truth**
-- Path: `D:\Frame 25.png`
+# Design QA
 
-**Implementation**
-- URL: `http://127.0.0.1:5173/`
-- Screenshot: Browser plugin capture in this session. Persisting `implementation-frame25.png` was attempted, but the browser runtime returned `EPERM` for writing into the project folder.
-- Viewport: 1920 x 1080
-- State: initial state, `01` active
+## 검증 환경
 
-**Full-View Comparison Evidence**
-- Source and implementation were compared at the same 1920 x 1080 viewport and the same initial active-index state.
-- The implementation keeps the black canvas, left offset, top offset, three-line index stack, active white text, inactive dark gray text, and no additional content.
+- 실행: `npm run dev`
+- 데스크톱: 1280 x 720
+- 모바일 경계: 768 x 800
+- 모바일 소형: 375 x 812
 
-**Focused Region Comparison Evidence**
-- Focused region: top-left index group.
-- The active first line uses a heavier leading phrase with a lighter trailing name, matching the visual hierarchy in the source.
-- The inactive `02` and `03` rows are intentionally dark and lower contrast, matching the source.
+## 레이아웃
 
-**Findings**
-- No actionable P0/P1/P2 findings remain.
+- 첫 화면에는 Page1만 노출되고 Page2~4의 노출 높이는 `0px`이다.
+- 모든 페이지는 현재 뷰포트와 같은 높이를 유지한다.
+- 페이지 패딩은 데스크톱 `40px`, 768px 이하 `20px`이다.
+- 375px 화면에서 가로 스크롤, 텍스트 잘림, 콘텐츠 겹침이 없다.
 
-**Fidelity Surfaces**
-- Fonts and typography: Korean sans-serif stack with large active line, smaller inactive lines, zero letter spacing, and fixed one-line text. The first active label uses mixed weight to match the source hierarchy.
-- Spacing and layout rhythm: left/top placement and row rhythm are tuned against the 1920 x 1080 screenshot.
-- Colors and visual tokens: background is solid black, active text is white, inactive text is dark gray.
-- Image quality and asset fidelity: no image, icon, or decorative asset exists in the source design.
-- Copy and content: visible copy matches the provided screenshot.
+## 입력 순서
 
-**Patches Made**
-- Removed all previous portfolio/project-stage content.
-- Rebuilt the screen as a fixed black page with only the three index rows.
-- Preserved wheel, keyboard, touch, and click index switching while preventing page scroll.
-- Adjusted first-line font weight and vertical rhythm after 1920 x 1080 visual review.
+- 휠 아래: `Page1 01 → Page1 02 → Page1 03 → Page2`
+- 키보드 위: `Page2 → Page1 03`
+- 한 번의 입력으로 한 단계만 이동한다.
+- Page1 내부 단계에서는 전체 페이지가 이동하지 않는다.
 
-**Implementation Checklist**
-- Build passes with `npm.cmd run build`.
-- Initial state shows `01` active.
-- Wheel down changes active state from `01` to `02`, then `03`.
-- `window.scrollY` stays `0` during wheel interaction.
+## 자동 검사
 
-**Follow-up Polish**
-- If exact Figma font metadata becomes available, swap the fallback font stack for the precise source font.
+- `npm run lint`: 통과
+- `npm run build`: 통과
+- CSS 변수: 미정의 0개, 중복 정의 0개
 
-final result: passed
+최종 결과: 통과

@@ -3,7 +3,7 @@
 .container_intro {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  > header { display: flex; align-items: flex-start; gap: 48px; }
+  > header { display: flex; align-items: flex-start; gap: 48px; min-height: 120px; padding-right: 148px; }
   header .text_caption { display: grid; gap: 4px; }
   h1 { align-self: center; justify-self: center; text-align: center; }
   > button {
@@ -12,19 +12,42 @@
     justify-self: center;
     width: 44px;
     height: 64px;
-    border: 1px solid var(--color-neutral-80);
-    border-radius: 24px;
+    padding: 0;
   }
 }
 
-.wrapper_navigation_placeholder {
-  flex: 1;
-  min-width: 20px;
-  height: 120px;
-  border-right: 24px solid var(--color-neutral-95);
+.wrapper_scroll_mouse {
+  display: flex;
+  justify-content: center;
+  width: 24px;
+  height: 36px;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+
+  > span {
+    display: block;
+    width: 2px;
+    height: 8px;
+    border-radius: 9999px;
+    background: currentColor;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wrapper_scroll_mouse > span { animation: scroll-wheel 1.6s ease-in-out infinite; }
+}
+
+@keyframes scroll-wheel {
+  0%, 100% { transform: translateY(6px); }
+  50% { transform: translateY(13px); }
 }
 
 @media (max-width: v.$breakpoint_mobile) {
-  .container_intro > header { gap: 20px; flex-wrap: wrap; }
-  .wrapper_navigation_placeholder { display: none; }
+  .container_intro > header {
+    gap: 20px;
+    flex-wrap: wrap;
+    min-height: 0;
+    padding: (v.$navigation_item_height + 20px) 0 0;
+  }
 }

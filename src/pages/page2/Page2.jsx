@@ -38,9 +38,9 @@ function Accessibility() {
 export default function Page2({ stage }) {
   const capability = capabilities[stage]
   return (
-    <section className="container_capabilities" data-snap-page data-stage={stage} aria-labelledby="capability-title">
+    <section className="container_capabilities" id="page2" data-snap-page data-stage={stage} aria-labelledby="capability-title">
       <header className="wrapper_section_heading">
-        <p className="text_caption">저는 이런 역량을 가지고 있습니다.</p>
+        <p className="text_subtitle">저는 이런 역량을 가지고 있습니다.</p>
         <h2 id="capability-title" className="text_hero" aria-live="polite">{capability.title}</h2>
       </header>
       <div className="wrapper_scroll_content" data-scroll-content tabIndex={0} aria-label={capability.label}>
@@ -51,16 +51,6 @@ export default function Page2({ stage }) {
           </div>
         ) : stage === 2 ? <DesignSystem /> : <Accessibility />}
       </div>
-      <footer className="wrapper_section_footer">
-        <span className="text_caption">핵심 역량</span>
-        <ol className="wrapper_progress" aria-label="핵심 역량 단계">
-          {capabilities.map(({ label }, index) => (
-            <li key={label} className={index === stage ? 'is-active' : undefined} aria-current={index === stage ? 'step' : undefined} aria-label={label}>
-              <span className="text_caption">0{index + 1}</span>
-            </li>
-          ))}
-        </ol>
-      </footer>
     </section>
   )
 }

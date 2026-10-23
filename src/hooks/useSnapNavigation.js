@@ -13,8 +13,27 @@ function scrollableContent(target, direction) {
 
 export default function useSnapNavigation({ stagedPage, stageCount }) {
   const viewportRef = useRef(null)
+  const [page, setPage] = useState(0)
   const [stage, setStage] = useState(0)
   const current = useRef({ page: 0, stage: 0, lockedUntil: 0 })
+
+  const goToPage = useCallback((pageIndex, nextStage = 0) => {
+    const viewport = viewportRef.current
+    if (!viewport) return
+    const pages = viewport.querySelectorAll('[data-snap-page]')
+    const nextPage = Math.max(0, Math.min(pages.length - 1, pageIndex))
+    const position = current.current
+    if (!pages[nextPage] || nextPage === position.page) return
+    if (nextPage === stagedPage) {
+      position.stage = nextStage
+      setStage(nextStage)
+    }
+    pages[nextPage].querySelectorAll('[data-scroll-content]').forEach((content) => { content.scrollTop = 0 })
+    position.page = nextPage
+    position.lockedUntil = performance.now() + TRANSITION_LOCK
+    viewport.scrollTo({ top: nextPage * viewport.clientHeight,
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+  }, [stagedPage])
 
   const move = useCallback((direction) => {
     const viewport = viewportRef.current
@@ -26,19 +45,11 @@ export default function useSnapNavigation({ stagedPage, stageCount }) {
       position.stage = nextStage
       setStage(nextStage)
       pages[position.page].querySelectorAll('[data-scroll-content]').forEach((content) => { content.scrollTop = 0 })
+      position.lockedUntil = performance.now() + TRANSITION_LOCK
     } else {
-      const nextPage = Math.max(0, Math.min(pages.length - 1, position.page + direction))
-      if (nextPage === position.page) return
-      if (nextPage === stagedPage) {
-        position.stage = direction > 0 ? 0 : stageCount - 1
-        setStage(position.stage)
-      }
-      position.page = nextPage
-      viewport.scrollTo({ top: nextPage * viewport.clientHeight,
-        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+      goToPage(position.page + direction, direction > 0 ? 0 : stageCount - 1)
     }
-    position.lockedUntil = performance.now() + TRANSITION_LOCK
-  }, [stagedPage, stageCount])
+  }, [stagedPage, stageCount, goToPage])
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -98,7 +109,9 @@ export default function useSnapNavigation({ stagedPage, stageCount }) {
     const onScroll = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
-        if (performance.now() >= current.current.lockedUntil) current.current.page = Math.round(viewport.scrollTop / viewport.clientHeight)
+        const visiblePage = Math.round(viewport.scrollTop / viewport.clientHeight)
+        setPage(visiblePage)
+        if (performance.now() >= current.current.lockedUntil) current.current.page = visiblePage
       })
     }
     const observer = new ResizeObserver(() => {
@@ -122,5 +135,5 @@ export default function useSnapNavigation({ stagedPage, stageCount }) {
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [move])
-  return { viewportRef, stage, move }
+  return { viewportRef, page, stage, move, goToPage }
 }

@@ -1,9 +1,10 @@
 @use './utilities';
 
 // Reuse the design system's complete typography combinations by semantic role.
-.text_hero { @extend .type-headline_1; }
+.text_hero { @extend .type-display_6; }
 .text_heading { @extend .type-headline_8; }
 .text_title { @extend .type-title_5; }
+.text_subtitle { @extend .type-title_3; }
 .text_body { @extend .type-body_1; }
 .text_label { @extend .type-label_2; }
 .text_caption { @extend .type-label_3; }

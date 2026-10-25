@@ -2,18 +2,22 @@ import ProjectList from '../../components/ProjectList'
 import Flow from '../../components/Flow'
 import Placeholder from '../../components/Placeholder'
 import { capabilities } from '../../data/intro'
+import useInView from '../../hooks/useInView'
+import useOverflowScroll from '../../hooks/useOverflowScroll'
 
 function CapabilitySection({ stage, isActive, continuous = false }) {
+  const { ref, isInView } = useInView()
+  const scrollRef = useOverflowScroll(stage, !continuous)
   const capability = capabilities[stage]
   const id = continuous && stage > 0 ? `page2-${stage}` : 'page2'
   const titleId = continuous ? `${id}-title` : 'capability-title'
   return (
-    <section className="container_capabilities" id={id} data-snap-page data-stage={stage} aria-labelledby={titleId} inert={!continuous && !isActive}>
+    <section ref={ref} className="container_capabilities" id={id} data-snap-page data-stage={stage} data-in-view={isInView} aria-labelledby={titleId} inert={!continuous && !isActive}>
       <header aria-live={continuous ? undefined : 'polite'} aria-atomic={continuous ? undefined : true}>
         <p key={`subtitle-${stage}`} className="text_subtitle">저는 이런 역량을 가지고 있습니다.</p>
         <p key={stage} id={titleId} className="text_hero" role="heading" aria-level={2}>{capability.title}</p>
       </header>
-      <div data-scroll-content tabIndex={continuous ? undefined : 0} aria-label={capability.label}>
+      <div ref={scrollRef} data-scroll-content tabIndex={continuous ? undefined : 0} aria-label={capability.label}>
         <div key={stage} className="wrapper_capability_body">
           {capability.projects && <ProjectList projects={capability.projects} />}
           {capability.steps && <Flow items={capability.steps} />}

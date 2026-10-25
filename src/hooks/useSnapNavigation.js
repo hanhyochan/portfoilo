@@ -13,15 +13,9 @@ function isPageRaised(viewport, pageIndex) {
   return Math.abs(viewport.scrollTop - pageIndex * viewport.clientHeight) <= EDGE_TOLERANCE
 }
 
-function wheelDistance(event, viewport) {
-  if (event.deltaMode === 2) return event.deltaY * viewport.clientHeight
-  if (event.deltaMode === 1) return event.deltaY * parseFloat(getComputedStyle(viewport).lineHeight)
-  return event.deltaY
-}
-
 function scrollableContent(target, direction) {
   const content = target instanceof Element ? target.closest('[data-scroll-content]') : null
-  if (!content) return null
+  if (!content?.hasAttribute('data-overflowing')) return null
   const remaining = content.scrollHeight - content.clientHeight - content.scrollTop
   return (direction > 0 ? remaining > 2 : content.scrollTop > 2) ? content : null
 }
@@ -65,14 +59,20 @@ export default function useSnapNavigation({ stagedPage, stageCount, enabled = tr
     position.stage = nextPage === stagedPage ? nextStage : 0
     setStage(position.stage)
     pages[nextPage].querySelectorAll('[data-scroll-content]').forEach((content) => { content.scrollTop = 0 })
-    position.lockedUntil = enabled ? performance.now() + TRANSITION_LOCK : 0
+    position.lockedUntil = performance.now() + TRANSITION_LOCK
     if (!enabled) viewport.focus({ preventScroll: true })
     viewport.scrollTo({ top, behavior: scrollBehavior() })
   }, [enabled, stagedPage])
 
   const move = useCallback((direction) => {
     const viewport = viewportRef.current
-    if (!enabled || !viewport || performance.now() < current.current.lockedUntil) return
+    if (!viewport || performance.now() < current.current.lockedUntil) return
+    if (!enabled) {
+      if (viewport.scrollTop < stagedPage * viewport.clientHeight - EDGE_TOLERANCE) {
+        goToPage(direction > 0 ? stagedPage : 0)
+      } else if (direction < 0 && isPageRaised(viewport, stagedPage)) goToPage(0)
+      return
+    }
     const position = current.current
     const nextStage = position.stage + direction
     if (isPageRaised(viewport, stagedPage) && nextStage >= 0 && nextStage < stageCount) {
@@ -93,46 +93,39 @@ export default function useSnapNavigation({ stagedPage, stageCount, enabled = tr
     const viewport = viewportRef.current
     let lastWheel = 0
     let consumed = false
-    let outerGesture = false
+    let snapped = false
     let touch = null
     let frame = 0
     let height = viewport.clientHeight
     let progress = viewport.scrollTop / height
+    const isContinuousScroll = (direction, scrollTop = viewport.scrollTop) => !enabled &&
+      (scrollTop > stagedPage * viewport.clientHeight + EDGE_TOLERANCE ||
+        (direction > 0 && scrollTop >= stagedPage * viewport.clientHeight - EDGE_TOLERANCE))
     const onWheel = (event) => {
-      if (event.ctrlKey || event.deltaY === 0) return
+      if (event.ctrlKey || event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
       const now = performance.now()
       if (now - lastWheel > GESTURE_GAP) {
         consumed = false
-        outerGesture = false
+        snapped = false
       }
       lastWheel = now
       const direction = Math.sign(event.deltaY)
-      if (now < current.current.lockedUntil) {
+      // Consume the rest of a snap gesture so trackpad inertia cannot skip the first content.
+      if (now < current.current.lockedUntil || snapped) {
         event.preventDefault()
         consumed = true
+        snapped = true
         return
       }
-      // Let the sheet follow normal scrolling until it fully covers the cover.
-      // Inert sheet content cannot consume this gesture with an inner scroll.
-      if (!isPageRaised(viewport, stagedPage)) {
-        consumed = true
-        outerGesture = true
-        return
-      }
-      if (scrollableContent(event.target, direction)) {
+      if (isContinuousScroll(direction)) return
+      if (enabled && isPageRaised(viewport, stagedPage) && scrollableContent(event.target, direction)) {
         consumed = true
         return
       }
       event.preventDefault()
-      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
-      if (current.current.stage === 0 && direction < 0 && (!consumed || outerGesture)) {
-        consumed = true
-        outerGesture = true
-        viewport.scrollBy({ top: wheelDistance(event, viewport), behavior: 'instant' })
-        return
-      }
       if (consumed || Math.abs(event.deltaY) < 2) return
       consumed = true
+      snapped = true
       move(direction)
     }
     const onKeyDown = (event) => {
@@ -142,10 +135,11 @@ export default function useSnapNavigation({ stagedPage, stageCount, enabled = tr
       const direction = ['ArrowDown', 'PageDown', ' '].includes(event.key) ? (event.shiftKey ? -1 : 1)
         : ['ArrowUp', 'PageUp'].includes(event.key) ? -1 : 0
       if (!direction) return
+      if (performance.now() >= current.current.lockedUntil && isContinuousScroll(direction)) return
       event.preventDefault()
       if (event.repeat) return
       if (performance.now() < current.current.lockedUntil) return
-      if (!isPageRaised(viewport, stagedPage)) {
+      if (!enabled || !isPageRaised(viewport, stagedPage)) {
         move(direction)
         return
       }
@@ -158,13 +152,14 @@ export default function useSnapNavigation({ stagedPage, stageCount, enabled = tr
     const onTouchStart = (event) => {
       if (event.touches.length !== 1) { touch = null; return }
       touch = { y: event.touches[0].clientY, x: event.touches[0].clientX, target: event.target,
-        scrollTop: viewport.scrollTop, scrolled: false, outer: false }
+        scrollTop: viewport.scrollTop, scrolled: false }
     }
     const onTouchMove = (event) => {
-      if (!touch || event.touches.length !== 1) return
+      if (event.touches.length !== 1) { touch = null; return }
+      if (!touch) return
       const dy = touch.y - event.touches[0].clientY
       if (Math.abs(dy) < Math.abs(touch.x - event.touches[0].clientX)) {
-        if (isPageRaised(viewport, stagedPage) && event.cancelable) event.preventDefault()
+        if (enabled && isPageRaised(viewport, stagedPage) && event.cancelable) event.preventDefault()
         return
       }
       if (performance.now() < current.current.lockedUntil) {
@@ -172,17 +167,12 @@ export default function useSnapNavigation({ stagedPage, stageCount, enabled = tr
         if (event.cancelable) event.preventDefault()
         return
       }
-      if (touch.scrolled && !touch.outer) return
+      if (touch.scrolled) return
       const direction = Math.sign(dy)
-      const inner = scrollableContent(touch.target, direction)
-      if (touch.outer || !isPageRaised(viewport, stagedPage) ||
-        (current.current.stage === 0 && direction < 0 && !inner)) {
-        touch.outer = true
+      if (isContinuousScroll(direction, touch.scrollTop) ||
+        (enabled && isPageRaised(viewport, stagedPage) && scrollableContent(touch.target, direction))) {
         touch.scrolled = true
-        if (event.cancelable) event.preventDefault()
-        viewport.scrollTo({ top: touch.scrollTop + dy, behavior: 'instant' })
-      } else if (inner) touch.scrolled = true
-      else if (event.cancelable) event.preventDefault()
+      } else if (event.cancelable) event.preventDefault()
     }
     const onTouchEnd = (event) => {
       if (!touch) return
@@ -220,14 +210,12 @@ export default function useSnapNavigation({ stagedPage, stageCount, enabled = tr
     })
     observer.observe(viewport)
     onScroll()
-    if (enabled) {
-      viewport.addEventListener('wheel', onWheel, { passive: false })
-      viewport.addEventListener('touchstart', onTouchStart, { passive: true })
-      viewport.addEventListener('touchmove', onTouchMove, { passive: false })
-      viewport.addEventListener('touchend', onTouchEnd)
-      viewport.addEventListener('touchcancel', onTouchCancel)
-      window.addEventListener('keydown', onKeyDown)
-    }
+    viewport.addEventListener('wheel', onWheel, { passive: false })
+    viewport.addEventListener('touchstart', onTouchStart, { passive: true })
+    viewport.addEventListener('touchmove', onTouchMove, { passive: false })
+    viewport.addEventListener('touchend', onTouchEnd)
+    viewport.addEventListener('touchcancel', onTouchCancel)
+    window.addEventListener('keydown', onKeyDown)
     viewport.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       observer.disconnect()

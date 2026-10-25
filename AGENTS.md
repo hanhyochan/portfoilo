@@ -11,7 +11,7 @@
 - Minimum text size is 14px, body text is 16px, hero text is 40px.
 - Shared layout values, registered color tokens, and typography belong in `src/style/foundation.scss`. Use only web and mobile layouts: mobile includes tablet sizes and is at most 1200px wide; web is above 1200px. Do not add a separate tablet layout.
 - Keep reusable interaction logic in `src/hooks`. Reuse existing components before adding wrappers or new components.
-- On mobile, render all capability sections at their natural heights in normal vertical flow without stage snapping or nested content scrolling. Keep one translucent panel backdrop pinned behind the scrolling content after it rises over the cover. Keep staged navigation on web only.
+- Snap between the cover and first capability panel with one wheel or swipe gesture on both web and mobile. On mobile, render all capability sections at their natural heights in normal vertical flow without stage snapping or nested content scrolling after entering the panel. Keep one translucent panel backdrop pinned behind the scrolling content after it rises over the cover. Keep staged navigation on web only.
 - Store static arrays for content, navigation, and options in `src/data`, organized by project (for example, `src/data/intro.js`), and import them where used.
 - Store image assets in the root `public/imgs` folder and newly created icon assets in `public/icons`. Reference them with public URLs such as `/imgs/cover.png`; do not create a separate `src/public` folder.
 - Keep generated work notes, conversation exports, verification screenshots, temporary files, and caches under `D:\WORKS\한효찬_문서\pf\codex`. Do not create these on C:.

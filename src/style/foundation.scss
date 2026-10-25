@@ -298,10 +298,10 @@ $navigation_item_height: 44px;
 $typography-specs: (
   display_10: (size: 40, weight: 600, line-height: 1.25),
   headline_2: (size: 32, weight: 600, line-height: 1.25),
+  title_2: (size: 20, weight: 600, line-height: 1.5),
   title_4: (size: 18, weight: 700, line-height: 1.5),
   title_5: (size: 18, weight: 600, line-height: 1.5),
-  title_3: (size: 20, weight: 400, line-height: 1.5),
-  title_6: (size: 18, weight: 400, line-height: 1.5),
+  title_7: (size: 16, weight: 600, line-height: 1.5),
   body_1: (size: 16, weight: 400, line-height: 1.5),
   label_2: (size: 14, weight: 500, line-height: 1.5),
   label_3: (size: 14, weight: 400, line-height: 1.5),
@@ -321,10 +321,11 @@ $typography-specs: (
 
 .text_hero { @include typography(display_10); }
 .text_title { @include typography(title_5); }
-.text_subtitle { @include typography(title_3); }
+.text_subtitle { @include typography(title_2); }
 .text_body { @include typography(body_1); }
 .text_label { @include typography(label_2); }
 .text_caption { @include typography(label_3); }
+.text_tag { @include typography(title_7); }
 .text_index {
   @include typography(title_4);
   font-variant-numeric: tabular-nums;
@@ -333,5 +334,5 @@ $typography-specs: (
 
 @media (max-width: $breakpoint_mobile) {
   .text_hero { @include typography(headline_2); }
-  .text_subtitle { @include typography(title_6); }
+  .text_subtitle { @include typography(title_5); }
 }

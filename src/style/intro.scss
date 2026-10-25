@@ -32,8 +32,7 @@ body {
 
 [data-scroll-content] {
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: visible;
   overscroll-behavior: contain;
   scrollbar-width: thin;
 }
@@ -103,6 +102,15 @@ body {
     max-width: 1280px;
   }
 
+  > [data-scroll-content][data-overflowing] {
+    // Keep the cards aligned while giving their shadows room inside the scrollport.
+    width: calc(100% + 80px);
+    max-width: 1360px;
+    padding: 40px 40px 96px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   > header {
     @include f.centered-column(8px);
     align-items: flex-start;
@@ -136,8 +144,6 @@ body {
   grid-template-columns: minmax(0, 1fr);
   gap: 32px;
   align-items: start;
-  // Keep motion overflow out of the parent's actual content scroll range.
-  overflow: clip;
 }
 
 .wrapper_previews {
@@ -151,8 +157,13 @@ body {
     animation: scroll-wheel 1.6s ease-in-out infinite;
   }
 
-  @media (width > f.$breakpoint_mobile) {
-    .container_capabilities:not([data-stage='0']) {
+  .container_capabilities {
+    > header > *,
+    > [data-scroll-content] > .wrapper_capability_body > * {
+      opacity: 0;
+    }
+
+    &[data-in-view='true'] {
       > header > *,
       > [data-scroll-content] > .wrapper_capability_body > * {
         animation: capability-rise 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -209,11 +220,6 @@ body {
     background: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-  }
-
-  [data-scroll-content],
-  .wrapper_capability_body {
-    overflow: visible;
   }
 
   .container_capabilities[data-stage='3'] .wrapper_flow,

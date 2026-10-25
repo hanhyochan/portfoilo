@@ -1,10 +1,10 @@
 import { Image } from './icons'
 
-export default function Placeholder({ label, variant = 'landscape' }) {
+export default function Placeholder({ label }) {
   return (
-    <div className="wrapper_placeholder" data-variant={variant} role="img" aria-label={label}>
+    <div className="wrapper_placeholder" role="img" aria-label={label}>
       <Image size={24} strokeWidth={1.25} aria-hidden="true" />
-      <span className="text_caption">{label}</span>
+      <p className="text_caption">{label}</p>
     </div>
   )
 }

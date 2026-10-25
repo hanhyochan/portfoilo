@@ -1,4 +1,18 @@
-@forward './variables';
+@use 'sass:map';
+
+// Shared layout values. Mobile includes all widths up to 1200px.
+$breakpoint_mobile: 1200px;
+$padding_desktop: 40px;
+$padding_mobile: 20px;
+$navigation_item_height: 44px;
+
+@mixin centered-column($gap) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $gap;
+}
 
 :root {
   /* Font */
@@ -238,7 +252,6 @@
   --color-purple-10_artkorealab: #100716;
   --color-common-0-alpha-52: color-mix(in srgb, var(--color-common-0) 52%, transparent);
   --color-text-primary: var(--color-cool-neutral-20);
-  --color-text-secondary: var(--color-neutral-40);
   --color-text-tertiary: var(--color-neutral-60);
   --color-text-disabled: var(--color-neutral-70);
   --color-text-inverse: var(--color-common-100);
@@ -269,3 +282,41 @@
   --color-newsroll-purple-95: #f8f5ff;
   --color-newsroll-purple-99: #fefdff;
 }
+
+@each $name, $weight in ('Regular': 400, 'Medium': 500, 'SemiBold': 600, 'Bold': 700) {
+  @font-face {
+    font-family: 'Pretendard Variable';
+    src: url('/fonts/Pretendard-#{$name}.woff2') format('woff2');
+    font-weight: $weight;
+    font-display: swap;
+  }
+}
+
+// Registered combinations from design-system.md, Foundation: Typography.
+$typography-specs: (
+  display_10: (size: 40, weight: 600, line-height: 1.25),
+  title_5: (size: 18, weight: 600, line-height: 1.5),
+  title_3: (size: 20, weight: 400, line-height: 1.5),
+  body_1: (size: 16, weight: 400, line-height: 1.5),
+  label_2: (size: 14, weight: 500, line-height: 1.5),
+  label_3: (size: 14, weight: 400, line-height: 1.5),
+);
+
+@mixin typography($name) {
+  @if not map.has-key($typography-specs, $name) {
+    @error 'Unknown typography specification: #{$name}';
+  }
+
+  $spec: map.get($typography-specs, $name);
+  font-size: var(--font-size-#{map.get($spec, size)});
+  font-weight: var(--font-weight-#{map.get($spec, weight)});
+  line-height: map.get($spec, line-height);
+  letter-spacing: 0;
+}
+
+.text_hero { @include typography(display_10); }
+.text_title { @include typography(title_5); }
+.text_subtitle { @include typography(title_3); }
+.text_body { @include typography(body_1); }
+.text_label { @include typography(label_2); }
+.text_caption { @include typography(label_3); }

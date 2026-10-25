@@ -5,7 +5,7 @@ export default function Flow({ items }) {
     <ol className="wrapper_flow">
       {items.map((item, index) => (
         <li key={item}>
-          <header><span className="text_caption">0{index + 1}</span><ArrowUpRight size={20} aria-hidden="true" /></header>
+          <header><p className="text_caption">{String(index + 1).padStart(2, '0')}</p><ArrowUpRight size={20} aria-hidden="true" /></header>
           <p className="text_body">{item}</p>
         </li>
       ))}

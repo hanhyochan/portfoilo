@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const GESTURE_GAP = 180
 const TRANSITION_LOCK = 760
@@ -26,12 +26,32 @@ function scrollableContent(target, direction) {
   return (direction > 0 ? remaining > 2 : content.scrollTop > 2) ? content : null
 }
 
-export default function useSnapNavigation({ stagedPage, stageCount }) {
+function contentTop(viewport, element) {
+  return viewport.scrollTop + element.getBoundingClientRect().top - viewport.getBoundingClientRect().top
+}
+
+export default function useSnapNavigation({ stagedPage, stageCount, enabled = true }) {
   const viewportRef = useRef(null)
   const [page, setPage] = useState(0)
   const [stage, setStage] = useState(0)
   const [coverInert, setCoverInert] = useState(false)
   const current = useRef({ stage: 0, lockedUntil: 0 })
+  const previousEnabled = useRef(enabled)
+
+  useLayoutEffect(() => {
+    if (previousEnabled.current === enabled) return
+    const viewport = viewportRef.current
+    const position = current.current
+    if (viewport.scrollTop >= viewport.clientHeight - EDGE_TOLERANCE) {
+      const section = viewport.querySelector(`[data-stage="${position.stage}"]`)
+      viewport.scrollTo({
+        top: enabled ? stagedPage * viewport.clientHeight : contentTop(viewport, section),
+        behavior: 'instant',
+      })
+    }
+    position.lockedUntil = 0
+    previousEnabled.current = enabled
+  }, [enabled, stagedPage])
 
   const goToPage = useCallback((pageIndex, nextStage = 0) => {
     const viewport = viewportRef.current
@@ -39,18 +59,20 @@ export default function useSnapNavigation({ stagedPage, stageCount }) {
     const pages = viewport.querySelectorAll('[data-snap-page]')
     const nextPage = Math.max(0, Math.min(pages.length - 1, pageIndex))
     const position = current.current
-    if (!pages[nextPage] || isPageRaised(viewport, nextPage)) return
+    if (!pages[nextPage]) return
+    const top = enabled || nextPage === 0 ? nextPage * viewport.clientHeight : contentTop(viewport, pages[nextPage])
+    if (Math.abs(viewport.scrollTop - top) <= EDGE_TOLERANCE) return
     position.stage = nextPage === stagedPage ? nextStage : 0
     setStage(position.stage)
     pages[nextPage].querySelectorAll('[data-scroll-content]').forEach((content) => { content.scrollTop = 0 })
-    position.lockedUntil = performance.now() + TRANSITION_LOCK
-    viewport.scrollTo({ top: nextPage * viewport.clientHeight,
-      behavior: scrollBehavior() })
-  }, [stagedPage])
+    position.lockedUntil = enabled ? performance.now() + TRANSITION_LOCK : 0
+    if (!enabled) viewport.focus({ preventScroll: true })
+    viewport.scrollTo({ top, behavior: scrollBehavior() })
+  }, [enabled, stagedPage])
 
   const move = useCallback((direction) => {
     const viewport = viewportRef.current
-    if (!viewport || performance.now() < current.current.lockedUntil) return
+    if (!enabled || !viewport || performance.now() < current.current.lockedUntil) return
     const position = current.current
     const nextStage = position.stage + direction
     if (isPageRaised(viewport, stagedPage) && nextStage >= 0 && nextStage < stageCount) {
@@ -65,7 +87,7 @@ export default function useSnapNavigation({ stagedPage, stageCount }) {
       const nextPage = direction > 0 ? Math.floor(progress + tolerance) + 1 : Math.ceil(progress - tolerance) - 1
       goToPage(nextPage, direction > 0 ? 0 : stageCount - 1)
     }
-  }, [stagedPage, stageCount, goToPage])
+  }, [enabled, stagedPage, stageCount, goToPage])
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -176,26 +198,37 @@ export default function useSnapNavigation({ stagedPage, stageCount }) {
       frame = requestAnimationFrame(() => {
         frame = 0
         const visiblePage = Math.floor((viewport.scrollTop + EDGE_TOLERANCE) / viewport.clientHeight)
-        setPage(visiblePage)
+        setPage(enabled ? visiblePage : Math.min(stagedPage, visiblePage))
         setCoverInert(viewport.scrollTop > EDGE_TOLERANCE)
+        if (!enabled) {
+          const midpoint = viewport.getBoundingClientRect().top + viewport.clientHeight / 2
+          let visibleStage = 0
+          viewport.querySelectorAll('[data-stage]').forEach((section) => {
+            if (section.getBoundingClientRect().top <= midpoint) visibleStage = Number(section.dataset.stage)
+          })
+          current.current.stage = visibleStage
+          setStage(visibleStage)
+        }
       })
     }
     const observer = new ResizeObserver(() => {
       const nextHeight = viewport.clientHeight
       if (height !== nextHeight && nextHeight > 0) {
         height = nextHeight
-        viewport.scrollTo({ top: progress * height, behavior: 'instant' })
+        if (enabled) viewport.scrollTo({ top: progress * height, behavior: 'instant' })
       }
     })
     observer.observe(viewport)
     onScroll()
-    viewport.addEventListener('wheel', onWheel, { passive: false })
-    viewport.addEventListener('touchstart', onTouchStart, { passive: true })
-    viewport.addEventListener('touchmove', onTouchMove, { passive: false })
-    viewport.addEventListener('touchend', onTouchEnd)
-    viewport.addEventListener('touchcancel', onTouchCancel)
+    if (enabled) {
+      viewport.addEventListener('wheel', onWheel, { passive: false })
+      viewport.addEventListener('touchstart', onTouchStart, { passive: true })
+      viewport.addEventListener('touchmove', onTouchMove, { passive: false })
+      viewport.addEventListener('touchend', onTouchEnd)
+      viewport.addEventListener('touchcancel', onTouchCancel)
+      window.addEventListener('keydown', onKeyDown)
+    }
     viewport.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('keydown', onKeyDown)
     return () => {
       observer.disconnect()
       cancelAnimationFrame(frame)
@@ -207,6 +240,6 @@ export default function useSnapNavigation({ stagedPage, stageCount }) {
       viewport.removeEventListener('scroll', onScroll)
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [move, stagedPage])
+  }, [enabled, move, stagedPage])
   return { viewportRef, page, stage, coverInert, move, goToPage }
 }

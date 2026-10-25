@@ -3,7 +3,7 @@
 // Shared layout values. Mobile includes all widths up to 1200px.
 $breakpoint_mobile: 1200px;
 $padding_desktop: 40px;
-$padding_mobile: 20px;
+$padding_mobile: 40px 20px;
 $navigation_item_height: 44px;
 
 @mixin centered-column($gap) {
@@ -15,6 +15,8 @@ $navigation_item_height: 44px;
 }
 
 :root {
+  --breakpoint-mobile: #{$breakpoint_mobile};
+
   /* Font */
   --font-pretendard: 'Pretendard Variable';
   --font-sans: var(--font-pretendard, 'Pretendard Variable'), 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
@@ -295,8 +297,11 @@ $navigation_item_height: 44px;
 // Registered combinations from design-system.md, Foundation: Typography.
 $typography-specs: (
   display_10: (size: 40, weight: 600, line-height: 1.25),
+  headline_2: (size: 32, weight: 600, line-height: 1.25),
+  title_4: (size: 18, weight: 700, line-height: 1.5),
   title_5: (size: 18, weight: 600, line-height: 1.5),
   title_3: (size: 20, weight: 400, line-height: 1.5),
+  title_6: (size: 18, weight: 400, line-height: 1.5),
   body_1: (size: 16, weight: 400, line-height: 1.5),
   label_2: (size: 14, weight: 500, line-height: 1.5),
   label_3: (size: 14, weight: 400, line-height: 1.5),
@@ -320,3 +325,13 @@ $typography-specs: (
 .text_body { @include typography(body_1); }
 .text_label { @include typography(label_2); }
 .text_caption { @include typography(label_3); }
+.text_index {
+  @include typography(title_4);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: $breakpoint_mobile) {
+  .text_hero { @include typography(headline_2); }
+  .text_subtitle { @include typography(title_6); }
+}

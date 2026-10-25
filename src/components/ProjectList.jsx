@@ -3,7 +3,7 @@ export default function ProjectList({ projects }) {
     <ol className="wrapper_projects">
       {projects.map(({ title, date, description }, index) => (
         <li key={title}>
-          <p className="text_caption">{String(index + 1).padStart(2, '0')}</p>
+          <p className="text_index">{String(index + 1).padStart(2, '0')}</p>
           <div>
             <header>
               <p className="text_title" role="heading" aria-level={3}>{title}</p>

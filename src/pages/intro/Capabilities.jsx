@@ -14,14 +14,14 @@ function CapabilitySection({ stage, isActive, continuous = false }) {
   return (
     <section ref={ref} className="container_capabilities" id={id} data-snap-page data-stage={stage} data-in-view={isInView} aria-labelledby={titleId} inert={!continuous && !isActive}>
       <header aria-live={continuous ? undefined : 'polite'} aria-atomic={continuous ? undefined : true}>
-        <p key={`subtitle-${stage}`} className="text_subtitle">저는 이런 역량을 가지고 있습니다.</p>
-        <p key={stage} id={titleId} className="text_hero" role="heading" aria-level={2}>{capability.title}</p>
+        <p key={`subtitle-${stage}`} className={continuous ? 'h_designSystem-type-title_18_600' : 'h_designSystem-type-title_20_600'}>저는 이런 핵심 역량을 가지고 있습니다.</p>
+        <p key={stage} id={titleId} className={continuous ? 'h_designSystem-type-headline_32_600' : 'h_designSystem-type-display_40_600'} role="heading" aria-level={2}>{capability.title}</p>
       </header>
       <div ref={scrollRef} data-scroll-content tabIndex={continuous ? undefined : 0} aria-label={capability.label}>
         <div key={stage} className="wrapper_capability_body">
           {capability.projects && <ProjectList projects={capability.projects} />}
           {capability.steps && <Flow items={capability.steps} />}
-          {capability.heading && <p className="text_title" role="heading" aria-level={3}>{capability.heading}</p>}
+          {capability.heading && <p className="h_designSystem-type-title_18_600" role="heading" aria-level={3}>{capability.heading}</p>}
           {capability.previews && (
             <div className="wrapper_previews">
               {capability.previews.map((preview) => preview.steps ? (

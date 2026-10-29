@@ -10,7 +10,7 @@ export default function PageNavigation({ items, activePage, onNavigate }) {
               aria-controls={id}
               onClick={() => onNavigate(index)}
             >
-              <p className="text_label">{label}</p>
+              <p className="h_designSystem-type-label_14_500">{label}</p>
             </button>
           </li>
         ))}

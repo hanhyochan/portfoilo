@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": ">=24.22.1 <25"
   },
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "lucide-react": "^1.61.0",
+    "@h_designsystem/foundation": "file:vendor/h-designsystem/h_designsystem-foundation-0.2.0.tgz",
+    "@h_designsystem/tokens": "file:vendor/h-designsystem/h_designsystem-tokens-0.2.0.tgz",
+    "@h_designsystem/ui": "file:vendor/h-designsystem/h_designsystem-ui-0.2.0.tgz",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

@@ -9,7 +9,7 @@ body {
   width: 100%;
   height: 100vh;
   height: 100dvh;
-  background: var(--color-neutral-99);
+  background: var(--h_designSystem-color-neutral-99);
 }
 
 .wrapper_pages {
@@ -49,12 +49,12 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
-    gap: 40px;
+    gap: var(--h_designSystem-unit-40);
   }
 
-  header .text_caption {
+  header .h_designSystem-type-label_14_400 {
     display: grid;
-    gap: 4px;
+    gap: var(--h_designSystem-unit-4);
   }
 
   > button {
@@ -62,22 +62,22 @@ body {
     display: grid;
     place-items: center;
     justify-self: center;
-    width: 44px;
-    height: 64px;
+    width: var(--h_designSystem-unit-44);
+    height: var(--h_designSystem-unit-64);
   }
 
   > button > span {
     display: flex;
     justify-content: center;
-    width: 24px;
-    height: 36px;
+    width: var(--h_designSystem-unit-24);
+    height: var(--h_designSystem-unit-36);
     border: 1px solid currentColor;
     border-radius: 9999px;
 
     &::before {
       content: '';
       width: 2px;
-      height: 8px;
+      height: var(--h_designSystem-unit-8);
       border-radius: inherit;
       background: currentColor;
       transform: translateY(6px);
@@ -87,13 +87,13 @@ body {
 
 .container_capabilities,
 .wrapper_panel_background::before {
-  background: color-mix(in srgb, var(--color-common-100) 24%, transparent);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  background: color-mix(in srgb, var(--h_designSystem-color-common-100) 24%, transparent);
+  -webkit-backdrop-filter: blur(var(--h_designSystem-unit-20));
+  backdrop-filter: blur(var(--h_designSystem-unit-20));
 }
 
 .container_capabilities {
-  @include f.centered-column(52px);
+  @include f.centered-column(var(--h_designSystem-unit-52));
   position: relative;
   z-index: 1;
 
@@ -104,21 +104,21 @@ body {
 
   > [data-scroll-content][data-overflowing] {
     // Keep the cards aligned while giving their shadows room inside the scrollport.
-    width: calc(100% + 80px);
+    width: calc(100% + var(--h_designSystem-unit-80));
     max-width: 1360px;
-    padding: 40px 40px 96px;
+    padding: var(--h_designSystem-unit-40) var(--h_designSystem-unit-40) var(--h_designSystem-unit-96);
     overflow-y: auto;
     overflow-x: hidden;
   }
 
   > header {
-    @include f.centered-column(8px);
+    @include f.centered-column(var(--h_designSystem-unit-8));
     align-items: flex-start;
     flex-shrink: 0;
     text-align: left;
   }
 
-  .text_hero {
+  > header > [role='heading'] {
     overflow-wrap: anywhere;
   }
 
@@ -142,14 +142,14 @@ body {
 .wrapper_capability_body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 32px;
+  gap: var(--h_designSystem-unit-32);
   align-items: start;
 }
 
 .wrapper_previews {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: var(--h_designSystem-unit-24);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -180,7 +180,7 @@ body {
 @keyframes capability-rise {
   from {
     opacity: 0;
-    transform: translate3d(0, 32px, 0);
+    transform: translate3d(0, var(--h_designSystem-unit-32), 0);
   }
 
   to {
@@ -195,7 +195,7 @@ body {
   }
 
   .container_intro > header {
-    gap: 20px;
+    gap: var(--h_designSystem-unit-20);
   }
 
   .wrapper_panel_background {
@@ -228,6 +228,6 @@ body {
   }
 
   .wrapper_previews {
-    gap: 20px;
+    gap: var(--h_designSystem-unit-20);
   }
 }

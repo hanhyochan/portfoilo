@@ -1,88 +1,90 @@
-:root {
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+// Keep this declaration before package CSS imports are bundled.
+@layer reset, h_designSystem;
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  color: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  letter-spacing: 0;
-}
+@layer reset {
+  :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-html {
-  font-size: 100%;
-}
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    letter-spacing: 0;
+  }
 
-html,
-body {
-  width: 100%;
-  height: 100%;
-}
+  html {
+    font-size: 100%;
+  }
 
-body {
-  all: unset;
-  display: block;
-  min-width: 320px;
-  color: var(--color-text-primary);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-16);
-  font-weight: var(--font-weight-400);
-  line-height: 1.5;
-  overscroll-behavior: none;
-  word-break: keep-all;
-}
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+  }
 
-a {
-  text-decoration: none;
-}
+  body {
+    all: unset;
+    display: block;
+    min-width: 320px;
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    overscroll-behavior: none;
+    word-break: keep-all;
+  }
 
-img {
-  display: block;
-  max-width: 100%;
-}
+  a {
+    text-decoration: none;
+  }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
+  img {
+    display: block;
+    max-width: 100%;
+  }
 
-button {
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
 
-ul,
-ol {
-  all: unset;
-  display: block;
-  list-style: none;
-}
+  button {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
 
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  all: unset;
-  display: block;
-}
+  ul,
+  ol {
+    all: unset;
+    display: block;
+    list-style: none;
+  }
 
-button:focus-visible,
-a:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid var(--color-blue-50);
-  outline-offset: -2px;
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    all: unset;
+    display: block;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--h_designSystem-color-blue-50);
+    outline-offset: -2px;
+  }
 }

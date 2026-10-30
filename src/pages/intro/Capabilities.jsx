@@ -1,45 +1,38 @@
+import CapabilityHeading from '../../components/CapabilityHeading'
 import ProjectList from '../../components/ProjectList'
 import Flow from '../../components/Flow'
 import Placeholder from '../../components/Placeholder'
+import useProjectCardLayout from '../../hooks/useProjectCardLayout'
 import { capabilities } from '../../data/intro'
-import useInView from '../../hooks/useInView'
-import useOverflowScroll from '../../hooks/useOverflowScroll'
 
-function CapabilitySection({ stage, isActive, continuous = false }) {
-  const { ref, isInView } = useInView()
-  const scrollRef = useOverflowScroll(stage, !continuous)
-  const capability = capabilities[stage]
-  const id = continuous && stage > 0 ? `page2-${stage}` : 'page2'
-  const titleId = continuous ? `${id}-title` : 'capability-title'
+function CapabilitySection({ capability, stage }) {
   return (
-    <section ref={ref} className="container_capabilities" id={id} data-snap-page data-stage={stage} data-in-view={isInView} aria-labelledby={titleId} inert={!continuous && !isActive}>
-      <header aria-live={continuous ? undefined : 'polite'} aria-atomic={continuous ? undefined : true}>
-        <p key={`subtitle-${stage}`} className={continuous ? 'h_designSystem-type-title_18_600' : 'h_designSystem-type-title_20_600'}>저는 이런 핵심 역량을 가지고 있습니다.</p>
-        <p key={stage} id={titleId} className={continuous ? 'h_designSystem-type-headline_32_600' : 'h_designSystem-type-display_40_600'} role="heading" aria-level={2}>{capability.title}</p>
-      </header>
-      <div ref={scrollRef} data-scroll-content tabIndex={continuous ? undefined : 0} aria-label={capability.label}>
-        <div key={stage} className="wrapper_capability_body">
-          {capability.projects && <ProjectList projects={capability.projects} />}
-          {capability.steps && <Flow items={capability.steps} />}
-          {capability.heading && <p className="h_designSystem-type-title_18_600" role="heading" aria-level={3}>{capability.heading}</p>}
-          {capability.previews && (
-            <div className="wrapper_previews">
-              {capability.previews.map((preview) => preview.steps ? (
-                <Flow key={preview.steps[0]} items={preview.steps} />
-              ) : <Placeholder key={preview.label} label={preview.label} />)}
-            </div>
-          )}
-        </div>
+    <section className="wrapper_capability_section" data-stage={stage} aria-label={capability.title}>
+      <div className="wrapper_capability_body">
+        {capability.projects && <ProjectList projects={capability.projects} />}
+        {capability.steps && <Flow items={capability.steps} />}
+        {capability.heading && <p className="h_designSystem-type-title_18_600" role="heading" aria-level={3}>{capability.heading}</p>}
+        {capability.previews && (
+          <div className="wrapper_previews">
+            {capability.previews.map((preview) => preview.steps ? (
+              <Flow key={preview.steps[0]} items={preview.steps} />
+            ) : <Placeholder key={preview.label} label={preview.label} />)}
+          </div>
+        )}
       </div>
     </section>
   )
 }
 
-export default function Capabilities({ stage, isActive, continuous }) {
-  return continuous
-    ? <>
-      <div className="wrapper_panel_background" aria-hidden="true" />
-      {capabilities.map((capability, index) => <CapabilitySection key={capability.label} stage={index} continuous />)}
-    </>
-    : <CapabilitySection stage={stage} isActive={isActive} />
+export default function Capabilities({ stage, pinned, isMobile, panelRef, headerRef, sectionsRef }) {
+  useProjectCardLayout(sectionsRef)
+
+  return (
+    <section className="container_capabilities" id="page3" data-region="3" ref={panelRef} aria-labelledby="capability-title" data-header-fixed={pinned}>
+      <CapabilityHeading title={capabilities[stage].title} titleId="capability-title" isMobile={isMobile} headerRef={headerRef} />
+      <div className="wrapper_capability_sections" ref={sectionsRef}>
+        {capabilities.map((capability, index) => <CapabilitySection key={capability.label} capability={capability} stage={index} />)}
+      </div>
+    </section>
+  )
 }

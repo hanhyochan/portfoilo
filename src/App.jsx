@@ -1,19 +1,28 @@
-import useSnapNavigation from './hooks/useSnapNavigation'
+import useScrollNavigation from './hooks/useScrollNavigation'
 import useMobileLayout from './hooks/useMobileLayout'
 import Cover from './pages/intro/Cover'
+import Translucent from './pages/intro/Translucent'
 import Capabilities from './pages/intro/Capabilities'
-import { capabilityCount, pages } from './data/intro'
+import { pages } from './data/intro'
 import PageNavigation from './components/PageNavigation'
 
 function App() {
   const isMobile = useMobileLayout()
-  const { viewportRef, page, stage, coverInert, goToPage } = useSnapNavigation({ stagedPage: 1, stageCount: capabilityCount, enabled: !isMobile })
+  const { viewportRef, capabilitiesRef, headerRef, sectionsRef, page, stage, pinned, coverInert, goToPage } = useScrollNavigation()
 
   return (
     <div className="container_portfolio">
-      <main className="wrapper_pages" ref={viewportRef} tabIndex={isMobile ? 0 : undefined}>
+      <main className="wrapper_pages" ref={viewportRef} tabIndex={0}>
         <Cover onNext={() => goToPage(1)} isCovered={coverInert} />
-        <Capabilities stage={stage} isActive={page === 1} continuous={isMobile} />
+        <Translucent isMobile={isMobile} />
+        <Capabilities
+          stage={stage}
+          pinned={pinned}
+          isMobile={isMobile}
+          panelRef={capabilitiesRef}
+          headerRef={headerRef}
+          sectionsRef={sectionsRef}
+        />
       </main>
       <PageNavigation items={pages} activePage={page} onNavigate={goToPage} />
     </div>

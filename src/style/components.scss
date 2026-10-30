@@ -20,39 +20,27 @@
   height: var(--h_designSystem-unit-24);
 }
 
-.wrapper_project_title {
+.wrapper_project_roles {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--h_designSystem-unit-12);
-  min-width: 0;
-  max-width: 100%;
-
-  // Only tag placement and color belong to this project.
-  > h-content-tag {
-    align-self: flex-start;
-    max-width: 100%;
-    --h_designSystem-component-bg: var(--color-text-primary);
-  }
-
-  > .h_designSystem-type-title_18_600 {
-    flex: 1 1 240px;
-    min-width: 0;
-  }
+  gap: var(--h_designSystem-unit-8);
 }
 
 .wrapper_projects {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: 1fr;
-  gap: var(--h_designSystem-unit-16);
+  gap: var(--h_designSystem-unit-24);
 
   > li {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto 1fr auto;
-    gap: var(--h_designSystem-unit-16);
-    padding: var(--h_designSystem-unit-24);
+    grid-template-rows: minmax(0, 1fr) var(--project-details-height, auto);
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    min-width: 0;
+    min-height: var(--project-card-min-height, 0px);
+    overflow: hidden;
     border-radius: var(--h_designSystem-unit-20);
     background: var(--h_designSystem-color-common-100);
     box-shadow: 0 var(--h_designSystem-unit-24) var(--h_designSystem-unit-40) color-mix(in srgb, var(--h_designSystem-color-static-black) 10%, transparent); // shadow_5
@@ -62,6 +50,66 @@
     justify-self: end;
     text-align: right;
     white-space: nowrap;
+  }
+}
+
+.wrapper_project_media,
+.wrapper_project_details {
+  padding: var(--h_designSystem-unit-24);
+}
+
+.wrapper_project_media {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-height: 0;
+
+  > h-content-tag {
+    align-self: flex-start;
+    max-width: 100%;
+    --h_designSystem-component-bg: var(--h_designSystem-color-common-100);
+    --h_designSystem-component-text: var(--color-text-primary);
+
+    [data-project-tag='홈페이지 리뉴얼'] & {
+      --h_designSystem-component-bg: var(--h_designSystem-color-red-50);
+      --h_designSystem-component-text: var(--h_designSystem-color-common-100);
+    }
+
+    [data-project-tag='홈페이지 유지보수'] & {
+      --h_designSystem-component-bg: var(--h_designSystem-color-cyan-50);
+      --h_designSystem-component-text: var(--h_designSystem-color-common-100);
+    }
+
+    [data-project-tag='홈페이지 구축'] &,
+    [data-project-tag='앱 구축'] & {
+      --h_designSystem-component-bg: var(--h_designSystem-color-violet-60);
+      --h_designSystem-component-text: var(--h_designSystem-color-common-100);
+    }
+  }
+
+  > img {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.wrapper_project_details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
+  align-items: baseline;
+  gap: var(--h_designSystem-unit-8);
+
+  > .h_designSystem-type-title_18_600 {
+    grid-column: 1 / -1;
+    color: var(--color-text-primary);
   }
 }
 
@@ -109,15 +157,14 @@
 .wrapper_placeholder,
 .wrapper_flow header,
 .wrapper_projects .h_designSystem-type-label_14_400,
-.wrapper_projects .h_designSystem-type-body_16_400,
 .wrapper_page_navigation button {
   color: var(--h_designSystem-color-neutral-40);
 }
 
 .wrapper_page_navigation {
-  grid-area: 1 / 1;
-  align-self: start;
-  justify-self: end;
+  position: fixed;
+  top: 0;
+  right: 0;
   z-index: 1;
   padding: f.$padding_desktop;
 

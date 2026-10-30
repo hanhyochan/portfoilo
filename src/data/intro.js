@@ -88,6 +88,14 @@ export const capabilities = [
     label: '디자인 시스템',
     steps: ['토큰 기반 파운데이션·컴포넌트 연결.', '디자인 규격에 맞춘 웹 UI 구현.', '프로젝트에 설치 가능한 UI 패키지 구성.'],
     description: '디자인 시스템을 실무에서 바로 재사용할 수 있도록 설치형 패키지로 구축했습니다. 프로젝트마다 일관된 기준을 적용하고 반복 구현을 줄이기 위해, 기존에 정립한 토큰·파운데이션·컴포넌트를 미리 퍼블리싱해 제공했습니다.',
+    applications: {
+      title: '프로젝트 적용',
+      items: [
+        { project: '아트코리아랩 홈페이지', method: '설치형 업데이트 이전, MD 파일 디자인 규격 기준으로 UI 구현.' },
+        { project: '버츄얼드림 홈페이지', method: '설치형 웹 컴포넌트 패키지를 설치해 공통 UI 적용.' },
+        { project: '현재 포트폴리오', method: '설치형 웹 컴포넌트 패키지를 설치해 공통 UI 적용.' },
+      ],
+    },
     previews: [
       { environments: designSystemEnvironments, title: '환경별 적용 방식' },
       {

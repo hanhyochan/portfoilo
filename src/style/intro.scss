@@ -163,10 +163,6 @@ html {
         align-content: start;
     }
 
-    &[data-stage='2'] > .wrapper_capability_body {
-        gap: var(--h_designSystem-unit-40);
-    }
-
     &[data-stage='3'] {
         .wrapper_placeholder {
             min-height: 180px;
@@ -178,7 +174,7 @@ html {
 .wrapper_capability_body {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--h_designSystem-unit-32);
+    gap: 70px;
     align-items: start;
     width: 100%;
     max-width: 1280px;
@@ -195,6 +191,53 @@ html {
 
     .wrapper_project_media > img {
         object-position: left top;
+    }
+}
+
+.wrapper_application_cases {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    text-align: left;
+
+    > caption {
+        padding-block-end: var(--h_designSystem-unit-24);
+        text-align: left;
+    }
+
+    thead {
+        border-block-end: 1px solid var(--h_designSystem-color-line-solid-normal);
+        color: var(--h_designSystem-color-text-secondary);
+
+        th {
+            padding-block: var(--h_designSystem-unit-12);
+        }
+    }
+
+    tbody tr {
+        height: var(--h_designSystem-unit-96);
+
+        + tr {
+            border-block-start: 1px solid var(--h_designSystem-color-line-solid-normal);
+        }
+    }
+
+    th,
+    td {
+        padding-block: var(--h_designSystem-unit-24);
+        padding-inline: 0;
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+        text-align: left;
+    }
+
+    th {
+        text-align: center;
+    }
+
+    tr > :first-child {
+        width: 36%;
+        padding-inline: var(--h_designSystem-unit-24);
     }
 }
 

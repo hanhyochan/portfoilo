@@ -183,6 +183,13 @@
   }
 }
 
+.wrapper_environment_tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h_designSystem-unit-24);
+  min-width: 0;
+}
+
 .wrapper_environment_panel {
   &:not([hidden]) {
     display: grid;

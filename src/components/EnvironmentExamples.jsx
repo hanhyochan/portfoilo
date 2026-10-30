@@ -4,7 +4,7 @@ export default function EnvironmentExamples({ title, environments }) {
   return (
     <section className="wrapper_environment_examples" aria-label={title}>
       <h3 className="h_designSystem-type-title_18_700">{title}</h3>
-      <Tabs defaultValue={environments[0].id}>
+      <Tabs className="wrapper_environment_tabs" defaultValue={environments[0].id}>
         <TabList aria-label="프로젝트 환경">
           {environments.map(({ id, label }) => (
             <Tab key={id} value={id} size="small" variant="filled" shape="full-rounded">{label}</Tab>

@@ -5,15 +5,15 @@ export default function useProjectCardLayout(containerRef) {
     const container = containerRef.current
     if (!container) return
 
-    const media = [...container.querySelectorAll('.wrapper_project_media')]
-    const details = [...container.querySelectorAll('.wrapper_project_details')]
-    if (!details.length) return
+    let media = []
+    let details = []
 
     let frame = 0
     let disposed = false
     const paddingHeight = style => parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
     const measure = () => {
       frame = 0
+      if (!details.length || !media.length) return
       // Keep every card's image split aligned to the tallest content.
       const detailsHeight = Math.ceil(Math.max(...details.map(element => {
         const style = getComputedStyle(element)
@@ -24,6 +24,7 @@ export default function useProjectCardLayout(containerRef) {
       const mediaMinHeight = Math.ceil(Math.max(...media.map(element =>
         (element.querySelector('h-content-tag')?.getBoundingClientRect().height ?? 0) + paddingHeight(getComputedStyle(element))
       )))
+      if (!Number.isFinite(detailsHeight) || !Number.isFinite(mediaMinHeight)) return
 
       for (const [property, height] of [
         ['--project-details-height', detailsHeight],
@@ -37,12 +38,24 @@ export default function useProjectCardLayout(containerRef) {
       if (!disposed && !frame) frame = requestAnimationFrame(measure)
     }
     const observer = new ResizeObserver(schedule)
-    observer.observe(container)
-    for (const element of [...media, ...details]) {
-      for (const child of element.children) {
-        if (child.tagName !== 'IMG') observer.observe(child)
+    const observeCards = () => {
+      media = [...container.querySelectorAll('.wrapper_project_media')]
+      details = [...container.querySelectorAll('.wrapper_project_details')]
+      observer.disconnect()
+      observer.observe(container)
+      for (const element of [...media, ...details]) {
+        for (const child of element.children) {
+          if (child.tagName !== 'IMG') observer.observe(child)
+        }
       }
     }
+    // React can replace card elements without remounting this container.
+    const mutations = new MutationObserver(() => {
+      observeCards()
+      schedule()
+    })
+    mutations.observe(container, { childList: true, subtree: true })
+    observeCards()
     document.fonts.ready.then(schedule)
     measure()
 
@@ -50,6 +63,7 @@ export default function useProjectCardLayout(containerRef) {
       disposed = true
       cancelAnimationFrame(frame)
       observer.disconnect()
+      mutations.disconnect()
       container.style.removeProperty('--project-details-height')
       container.style.removeProperty('--project-card-min-height')
     }

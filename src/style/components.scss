@@ -33,6 +33,10 @@
   gap: var(--h_designSystem-unit-24);
 
   > li {
+    min-width: 0;
+  }
+
+  > li > a {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) var(--project-details-height, auto);
@@ -210,7 +214,17 @@
   }
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .wrapper_projects > li:hover > a {
+    transform: translateY(calc(var(--h_designSystem-unit-4) * -1));
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
+  .wrapper_projects > li > a {
+    transition: transform 160ms ease;
+  }
+
   .wrapper_page_navigation button {
     transition: color 160ms ease;
 

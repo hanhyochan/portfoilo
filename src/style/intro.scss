@@ -149,7 +149,8 @@ html {
     flex-direction: column;
     gap: 300px;
     padding-inline: var(--h_designSystem-unit-20);
-    clip-path: inset(var(--capability-content-clip, 0px) 0 0);
+    // Allow the 4px hover lift and its edge beyond fractional scroll alignment.
+    clip-path: inset(calc(var(--capability-content-clip, 0px) - var(--h_designSystem-unit-8)) 0 0);
 }
 
 .wrapper_capability_section {

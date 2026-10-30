@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 
 const GESTURE_GAP = 180
+const LANDING_PAUSE = 1000
 const TRANSITION_TIMEOUT = 1600
 const SWIPE_DISTANCE = 50
 const EDGE_TOLERANCE = 1
@@ -37,17 +38,17 @@ function boundaryTarget(bounds, index, position, delta) {
 function contentExitTarget(exits, position, delta) {
   if (delta <= 0) return null
   const next = exits?.find(exit => position < exit.nextStart - EDGE_TOLERANCE && position + delta >= exit.end)
-  return next ? { top: next.nextStart, instant: true } : null
+  return next ? { top: next.nextStart } : null
 }
 
 export default function useRegionSnap(containerRef, layoutRef) {
   const transition = useRef({ target: null, until: 0 })
   const positionLock = useRef(null)
-  const snapTo = useCallback(({ top, instant = false }) => {
+  const snapTo = useCallback(({ top }) => {
     top = Math.ceil(top)
     const now = performance.now()
-    const immediate = instant || matchMedia('(prefers-reduced-motion: reduce)').matches
-    positionLock.current = immediate ? { top, until: now + GESTURE_GAP } : null
+    const immediate = matchMedia('(prefers-reduced-motion: reduce)').matches
+    positionLock.current = immediate ? { top, until: now + LANDING_PAUSE, holdUntil: now + LANDING_PAUSE } : null
     transition.current = { target: immediate ? null : top, until: now + TRANSITION_TIMEOUT }
     window.scrollTo({ top, behavior: immediate ? 'instant' : 'smooth' })
   }, [])
@@ -69,11 +70,12 @@ export default function useRegionSnap(containerRef, layoutRef) {
       const arrived = Math.abs(window.scrollY - target) <= EDGE_TOLERANCE
       if (now >= until || arrived) {
         transition.current.target = null
-        if (arrived) positionLock.current = { top: target, until: now + GESTURE_GAP }
+        if (arrived) positionLock.current = { top: target, until: now + LANDING_PAUSE, holdUntil: now + LANDING_PAUSE }
         return false
       }
       return true
     }
+    const isScrollLocked = () => isMoving() || performance.now() < (positionLock.current?.holdUntil ?? 0)
     const targetFor = (delta, position = window.scrollY) => {
       const bounds = boundsNow()
       const region = boundaryTarget(bounds, regionIndex(bounds, position), position, delta)
@@ -85,7 +87,11 @@ export default function useRegionSnap(containerRef, layoutRef) {
       if (event.ctrlKey || event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
       releasedTouch = null
       const now = performance.now()
-      const moving = isMoving()
+      // The pause starts on arrival and cannot be cleared or extended by new input.
+      if (isScrollLocked()) {
+        event.preventDefault()
+        return
+      }
       if (now - lastWheel > GESTURE_GAP || Math.sign(event.deltaY) !== wheelDirection) {
         wheelConsumed = false
         wheelStart = window.scrollY
@@ -94,10 +100,10 @@ export default function useRegionSnap(containerRef, layoutRef) {
       wheelDirection = Math.sign(event.deltaY)
       lastWheel = now
       // Absorb the gesture's remaining inertia after an automatic alignment.
-      if (moving || wheelConsumed) {
+      if (wheelConsumed) {
         event.preventDefault()
         wheelConsumed = true
-        if (positionLock.current) positionLock.current.until = now + GESTURE_GAP
+        if (positionLock.current) positionLock.current.until = Math.max(positionLock.current.until, now + GESTURE_GAP)
         return
       }
       const unit = event.deltaMode === 1 ? (layoutRef.current?.lineHeight ?? 16) : event.deltaMode === 2 ? window.innerHeight : 1
@@ -110,17 +116,19 @@ export default function useRegionSnap(containerRef, layoutRef) {
     const onTouchStart = event => {
       releasedTouch = null
       lastWheel = 0
-      positionLock.current = null
+      const locked = isScrollLocked()
+      if (!locked) positionLock.current = null
       touch = event.touches.length === 1 ? {
         x: event.touches[0].clientX, y: event.touches[0].clientY,
         startScroll: window.scrollY,
-        direction: 0, native: false, snapped: false,
+        direction: 0, native: false, snapped: locked,
       } : null
     }
     const onTouchMove = event => {
       if (event.touches.length !== 1) { touch = null; return }
       if (!touch) return
-      if (touch.snapped || isMoving()) {
+      if (touch.snapped || isScrollLocked()) {
+        touch.snapped = true
         if (event.cancelable) event.preventDefault()
         return
       }
@@ -138,7 +146,7 @@ export default function useRegionSnap(containerRef, layoutRef) {
       }
     }
     const settleTouchBoundary = () => {
-      if (!releasedTouch || isMoving()) return
+      if (!releasedTouch || isScrollLocked()) return
       if (performance.now() > releasedTouch.until) { releasedTouch = null; return }
       const { direction, startScroll } = releasedTouch
       const delta = window.scrollY - startScroll
@@ -155,13 +163,13 @@ export default function useRegionSnap(containerRef, layoutRef) {
         else {
           // Force the landing coordinate while this input's remaining inertia drains.
           if (Math.abs(window.scrollY - lock.top) > EDGE_TOLERANCE) {
-            lock.until = performance.now() + GESTURE_GAP
+            lock.until = Math.max(lock.until, performance.now() + GESTURE_GAP)
             window.scrollTo({ top: lock.top, behavior: 'instant' })
           }
           return
         }
       }
-      if (isMoving() || positionLock.current) return
+      if (isScrollLocked() || positionLock.current) return
       // Catch combined wheel deltas applied by the browser in a single frame.
       if (!wheelConsumed && performance.now() - lastWheel <= GESTURE_GAP) {
         const delta = window.scrollY - wheelStart
@@ -196,14 +204,22 @@ export default function useRegionSnap(containerRef, layoutRef) {
     const onKeyDown = event => {
       if (event.ctrlKey || event.altKey || event.metaKey || event.target.closest?.('input, textarea, select, [contenteditable="true"]')) return
       if (event.key === ' ' && event.target.closest?.('button, a')) return
+      if (!['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(event.key)) return
+      releasedTouch = null
+      lastWheel = 0
+      if (isScrollLocked()) {
+        event.preventDefault()
+        return
+      }
+      if (!keyConsumed) positionLock.current = null
+      if (keyConsumed) {
+        event.preventDefault()
+        keyConsumed = true
+        return
+      }
       const direction = ['ArrowDown', 'PageDown', ' '].includes(event.key) ? (event.shiftKey ? -1 : 1)
         : ['ArrowUp', 'PageUp'].includes(event.key) ? -1 : 0
       if (!direction) return
-      releasedTouch = null
-      lastWheel = 0
-      const moving = isMoving()
-      if (!keyConsumed) positionLock.current = null
-      if (moving || keyConsumed) { event.preventDefault(); return }
       const distance = event.key.startsWith('Arrow') ? 40 : window.innerHeight * 0.875
       const target = targetFor(direction * distance)
       if (target === null) return

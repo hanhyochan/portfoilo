@@ -9,9 +9,8 @@
 }
 
 .wrapper_icon_arrow {
-  --icon-source: url('@h_designsystem/foundation/icons/icon_arrow_up_right_1.svg');
-  width: var(--h_designSystem-unit-20);
-  height: var(--h_designSystem-unit-20);
+  --icon-source: url('@h_designsystem/foundation/icons/icon_arrow_right_light.svg');
+  cursor: inherit;
 }
 
 .wrapper_icon_image {
@@ -87,6 +86,11 @@
       --h_designSystem-component-text: var(--h_designSystem-color-common-100);
     }
 
+    [data-project-tag='UI 패키지 배포'] & {
+      --h_designSystem-component-bg: var(--h_designSystem-color-orange-50);
+      --h_designSystem-component-text: var(--h_designSystem-color-common-100);
+    }
+
     [data-project-tag='홈페이지 구축'] &,
     [data-project-tag='앱 구축'] & {
       --h_designSystem-component-bg: var(--h_designSystem-color-violet-60);
@@ -129,37 +133,79 @@
   text-align: center;
 }
 
-.wrapper_flow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--h_designSystem-unit-24);
+.wrapper_flow_step {
+  display: flex;
+  min-width: 0;
+  gap: var(--h_designSystem-unit-20);
+  text-align: center;
 
-  li {
-    display: grid;
-    align-content: start;
-    gap: var(--h_designSystem-unit-24);
-
-    &::before {
-      content: '';
-      height: 1px;
-      background: var(--h_designSystem-color-neutral-80);
-    }
+  > [role='listitem'] {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--h_designSystem-unit-4);
+    min-width: 0;
+    padding: var(--h_designSystem-unit-24);
+    border: 1px solid var(--h_designSystem-color-line-solid-normal);
+    border-radius: var(--h_designSystem-unit-20);
+    overflow-wrap: anywhere;
   }
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  > .wrapper_icon_arrow {
+    align-self: center;
+    color: var(--h_designSystem-color-neutral-70);
+  }
+}
 
-    > p {
-      font-variant-numeric: tabular-nums;
-      color: var(--color-text-primary);
+.wrapper_environment_examples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--h_designSystem-unit-24);
+  aspect-ratio: 4 / 3;
+  min-width: 0;
+  min-height: 0;
+  align-self: start;
+  padding: var(--h_designSystem-unit-24);
+  border-radius: var(--h_designSystem-unit-20);
+  background: var(--h_designSystem-color-neutral-97);
+
+  h-tab {
+    display: grid;
+    min-width: calc(var(--h_designSystem-unit-80) + var(--h_designSystem-unit-16) * 2);
+    --h_designSystem-component-bg: var(--h_designSystem-color-common-100);
+    --h_designSystem-component-text: var(--color-text-primary);
+
+    &[aria-selected='true'] {
+      --h_designSystem-component-bg: var(--color-text-primary);
+      --h_designSystem-component-text: var(--h_designSystem-color-common-100);
     }
   }
 }
 
+.wrapper_environment_panel {
+  &:not([hidden]) {
+    display: grid;
+    gap: var(--h_designSystem-unit-12);
+  }
+
+  > .h_designSystem-type-label_14_400 {
+    overflow-wrap: anywhere;
+    color: var(--h_designSystem-color-text-secondary);
+  }
+}
+
+.wrapper_environment_code {
+  display: block;
+  min-width: 0;
+  padding: var(--h_designSystem-unit-16);
+  border-radius: var(--h_designSystem-unit-20);
+  background: var(--h_designSystem-color-neutral-95);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .wrapper_placeholder,
-.wrapper_flow header,
 .wrapper_projects .h_designSystem-type-label_14_400,
 .wrapper_page_navigation button {
   color: var(--h_designSystem-color-neutral-40);
@@ -235,14 +281,24 @@
 }
 
 @media (max-width: f.$breakpoint_mobile) {
-  .wrapper_projects,
-  .wrapper_flow {
+  .wrapper_environment_examples {
+    min-height: auto;
+  }
+
+  .wrapper_projects {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .wrapper_flow,
-  .wrapper_flow li {
-    gap: var(--h_designSystem-unit-12);
+  .wrapper_flow_step {
+    flex-direction: column;
+
+    > [role='listitem'] {
+      flex: none;
+    }
+
+    > .wrapper_icon_arrow {
+      transform: rotate(90deg);
+    }
   }
 
   .wrapper_page_navigation {

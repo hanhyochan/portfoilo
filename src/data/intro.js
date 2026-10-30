@@ -4,6 +4,64 @@ export const pages = [
   { id: 'page3', label: '3번' },
 ]
 
+export const designSystemEnvironments = [
+  {
+    id: 'react',
+    label: 'React',
+    description: '패키지에서 React 컴포넌트를 불러와 사용.',
+    code: `import '@h_designsystem/ui/styles.css';
+import { Button } from '@h_designsystem/ui';
+
+<Button size="medium" variant="filled" shape="square">
+  컴포넌트
+</Button>`,
+  },
+  {
+    id: 'vue',
+    label: 'Vue',
+    description: '커스텀 요소를 등록하고 웹 컴포넌트로 사용.',
+    code: `<script setup>
+import '@h_designsystem/ui/elements/button';
+import '@h_designsystem/ui/styles.css';
+</script>
+
+<template>
+  <h-button size="medium" variant="filled" shape="square">
+    컴포넌트
+  </h-button>
+</template>`,
+    note: "Vue 빌드 설정: compilerOptions.isCustomElement: tag => tag.startsWith('h-')",
+  },
+  {
+    id: 'svelte',
+    label: 'Svelte',
+    description: '버튼 요소를 불러오고 웹 컴포넌트로 사용.',
+    code: `<script>
+import '@h_designsystem/ui/elements/button';
+import '@h_designsystem/ui/styles.css';
+</script>
+
+<h-button size="medium" variant="filled" shape="square">
+  컴포넌트
+</h-button>`,
+  },
+  {
+    id: 'html-jsp',
+    label: 'HTML / JSP',
+    description: '빌드된 CSS·JS를 정적 파일로 연결.',
+    code: `<link rel="stylesheet" href="./assets/h-designsystem/styles.css">
+
+<h-button size="medium" variant="filled" shape="square">
+  컴포넌트
+</h-button>
+
+<script type="module">
+import './assets/h-designsystem/elements/button.js';
+</script>`,
+    note: 'JSP는 두 경로의 ./ 대신 ${pageContext.request.contextPath}/ 사용.',
+  },
+]
+
 export const capabilities = [
   {
     title: '공공·기업 실무 기획 UIUX 디자인 및 JSP 퍼블리싱',
@@ -26,12 +84,22 @@ export const capabilities = [
     ],
   },
   {
-    title: '사내 디자인 시스템 구축, 토큰·컴포넌트 코드화 및 실무 적용',
+    title: '사내 디자인 시스템 구축, 설치형 UI 패키지 구현 및 실무 적용',
     label: '디자인 시스템',
-    steps: ['피그마로 디자인 시스템 작업', 'AI MCP 연결 및 공통 컴포넌트 퍼블리싱 구현', '시스템을 MD파일로 만들어 실무 디자인 시스템으로 적용'],
+    steps: ['토큰 기반 파운데이션·컴포넌트 연결.', '디자인 규격에 맞춘 웹 UI 구현.', '프로젝트에 설치 가능한 UI 패키지 구성.'],
+    description: '디자인 시스템을 실무에서 바로 재사용할 수 있도록 설치형 패키지로 구축했습니다. 프로젝트마다 일관된 기준을 적용하고 반복 구현을 줄이기 위해, 기존에 정립한 토큰·파운데이션·컴포넌트를 미리 퍼블리싱해 제공했습니다.',
     previews: [
-      { label: '디자인 시스템 · 파운데이션' },
-      { label: '디자인 시스템 · 컴포넌트' },
+      { environments: designSystemEnvironments, title: '환경별 적용 방식' },
+      {
+        project: {
+          title: '설치형 디자인 시스템 UI 패키지',
+          tag: 'UI 패키지 배포',
+          date: '2026.04.22 ~',
+          roles: ['기획', '디자인', '퍼블리싱'],
+          image: '/imgs/design-system-storybook.png',
+          imageAlt: '디자인 시스템 Storybook의 버튼 크기 및 상태별 예시',
+        },
+      },
     ],
   },
   {

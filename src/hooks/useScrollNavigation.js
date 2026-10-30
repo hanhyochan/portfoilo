@@ -22,7 +22,7 @@ export default function useScrollNavigation() {
     const parts = [...sections.querySelectorAll('[data-stage]')]
     const regions = [...viewport.querySelectorAll(':scope > [data-region]')]
     const startTargets = parts.map(part =>
-      part.querySelector('.wrapper_projects') ?? part.querySelector('.wrapper_capability_body') ?? part
+      part.querySelector(':scope > .wrapper_capability_body') ?? part
     )
     let frame = 0
     let disposed = false
@@ -50,7 +50,7 @@ export default function useScrollNavigation() {
         sectionsStart: sectionsRect.top + scrollTop + headerHeight - reservedHeight,
         headerHeight,
         viewportHeight: window.innerHeight,
-        // The next list starts at its outer top edge.
+        // Include descriptions and steps before any project cards in the section.
         startOffsets: contentRects.map(rect => rect.top - sectionsRect.top),
       }
       const outerBounds = regionRects.map((rect, index) => ({
